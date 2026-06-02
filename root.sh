@@ -42,12 +42,12 @@ esac
 if [ ! -e $ROOTFS_DIR/.installed ]; then
   mkdir -p $ROOTFS_DIR/usr/local/bin
   curl -L -o $ROOTFS_DIR/usr/local/bin/proot \
-    "https://raw.githubusercontent.com/foxytouxxx/freeroot/main/proot-${ARCH}"
+    "https://raw.githubusercontent.com/kof99zip/MyWorlds/main/proot-${ARCH}"
 
   while [ ! -s "$ROOTFS_DIR/usr/local/bin/proot" ]; do
     rm -f $ROOTFS_DIR/usr/local/bin/proot
     curl -L -o $ROOTFS_DIR/usr/local/bin/proot \
-      "https://raw.githubusercontent.com/foxytouxxx/freeroot/main/proot-${ARCH}"
+      "https://raw.githubusercontent.com/kof99zip/MyWorlds/main/proot-${ARCH}"
     sleep 1
   done
 
