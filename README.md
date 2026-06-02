@@ -2,7 +2,7 @@
 
 ## Overview
 
-This shell script is designed to automate the installation of Foxytoux, a lightweight Ubuntu environment using Proot.
+This shell script is designed to automate the installation of Foxytoux, a lightweight Alpine environment using Proot.
 
 ## Prerequisites
 
@@ -16,8 +16,8 @@ This shell script is designed to automate the installation of Foxytoux, a lightw
 1. Clone the repository:
 
     ```sh
-    git clone https://github.com/kuisa/MyWorlds.git
-    cd freeroot
+    git clone https://github.com/kof99zip/MyWorlds.git
+    cd MyWorlds
     ```
 
 2. Run the installer script:
