@@ -2,57 +2,52 @@
 
 ROOTFS_DIR=$(pwd)
 export PATH=$PATH:~/.local/usr/bin
-max_retries=50
-timeout=1
 ARCH=$(uname -m)
 
 if [ "$ARCH" = "x86_64" ]; then
-  ARCH_ALT=amd64
+  ARCH_ALT=x86_64
+  ALPINE_VER_URL="https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/x86_64/alpine-minirootfs-3.22.0-x86_64.tar.gz"
 elif [ "$ARCH" = "aarch64" ]; then
-  ARCH_ALT=arm64
+  ARCH_ALT=aarch64
+  ALPINE_VER_URL="https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/aarch64/alpine-minirootfs-3.22.0-aarch64.tar.gz"
 else
-  printf "Unsupported CPU architecture: ${ARCH}"
+  printf "Unsupported CPU architecture: ${ARCH}\n"
   exit 1
 fi
 
 if [ ! -e $ROOTFS_DIR/.installed ]; then
   echo "#######################################################################################"
   echo "#"
-  echo "#                                      Foxytoux INSTALLER"
+  echo "#                                  Foxytoux INSTALLER (Alpine 3.22)"
   echo "#"
-  echo "#                           Copyright (C) 2024, RecodeStudios.Cloud"
-  echo "#"
+  echo "#                           Copyright (C) 2026, RecodeStudios.Cloud"
   echo "#"
   echo "#######################################################################################"
 
-  read -p "Do you want to install Ubuntu? (YES/no): " install_ubuntu
+  read -p "Do you want to install Alpine 3.22? (YES/no): " install_alpine
 fi
 
-case $install_ubuntu in
+case $install_alpine in
   [yY][eE][sS])
-    curl -o /tmp/rootfs.tar.gz \
-      "http://cdimage.ubuntu.com/ubuntu-base/releases/20.04/release/ubuntu-base-20.04.4-base-${ARCH_ALT}.tar.gz"
+    echo "Downloading Alpine 3.22 rootfs..."
+    curl -L -o /tmp/rootfs.tar.gz "$ALPINE_VER_URL"
+    mkdir -p $ROOTFS_DIR
     tar -xf /tmp/rootfs.tar.gz -C $ROOTFS_DIR
     ;;
   *)
-    echo "Skipping Ubuntu installation."
+    echo "Skipping Alpine installation."
     ;;
 esac
 
 if [ ! -e $ROOTFS_DIR/.installed ]; then
-  mkdir $ROOTFS_DIR/usr/local/bin -p
-  curl -o $ROOTFS_DIR/usr/local/bin/proot "https://raw.githubusercontent.com/kuisa/MyWorlds/main/proot-${ARCH}"
+  mkdir -p $ROOTFS_DIR/usr/local/bin
+  curl -L -o $ROOTFS_DIR/usr/local/bin/proot \
+    "https://raw.githubusercontent.com/foxytouxxx/freeroot/main/proot-${ARCH}"
 
   while [ ! -s "$ROOTFS_DIR/usr/local/bin/proot" ]; do
-    rm $ROOTFS_DIR/usr/local/bin/proot -rf
-    curl -o $ROOTFS_DIR/usr/local/bin/proot "https://raw.githubusercontent.com/kuisa/MyWorlds/main/proot-${ARCH}"
-
-    if [ -s "$ROOTFS_DIR/usr/local/bin/proot" ]; then
-      chmod 755 $ROOTFS_DIR/usr/local/bin/proot
-      break
-    fi
-
-    chmod 755 $ROOTFS_DIR/usr/local/bin/proot
+    rm -f $ROOTFS_DIR/usr/local/bin/proot
+    curl -L -o $ROOTFS_DIR/usr/local/bin/proot \
+      "https://raw.githubusercontent.com/foxytouxxx/freeroot/main/proot-${ARCH}"
     sleep 1
   done
 
@@ -60,14 +55,13 @@ if [ ! -e $ROOTFS_DIR/.installed ]; then
 fi
 
 if [ ! -e $ROOTFS_DIR/.installed ]; then
-  printf "nameserver 1.1.1.1\nnameserver 1.0.0.1" > ${ROOTFS_DIR}/etc/resolv.conf
-  rm -rf /tmp/rootfs.tar.xz /tmp/sbin
+  mkdir -p $ROOTFS_DIR/etc
+  printf "nameserver 1.1.1.1\nnameserver 1.0.0.1\n" > $ROOTFS_DIR/etc/resolv.conf
   touch $ROOTFS_DIR/.installed
 fi
 
 CYAN='\e[0;36m'
 WHITE='\e[0;37m'
-
 RESET_COLOR='\e[0m'
 
 display_gg() {
