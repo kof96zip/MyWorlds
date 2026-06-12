@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# =====================
+# 启动 proot 函数
+# =====================
 start_proot() {
     ROOTFS="$1"
 
@@ -8,26 +11,28 @@ start_proot() {
         exit 1
     fi
 
+    # 避免 ptrace/SECCOMP 问题
+    export PROOT_NO_SECCOMP=1
+
+    BIND_OPTS="-b /dev -b /proc -b /sys -b /etc/resolv.conf -b $ROOTFS/lib"
+    [ -d "$ROOTFS/lib64" ] && BIND_OPTS="$BIND_OPTS -b $ROOTFS/lib64"
+
     exec "$ROOTFS/usr/local/bin/toor" \
         --rootfs="$ROOTFS" \
         -0 \
         -w "/root" \
-        -b /dev \
-        -b /proc \
-        -b /sys \
-        -b /etc/resolv.conf \
-        -b "$ROOTFS/lib" \
-        -b "$ROOTFS/lib64" \
+        $BIND_OPTS \
         --kill-on-exit
 }
 
+# =====================
+# 基础变量
+# =====================
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOTFS_DIR="$SCRIPT_DIR"
 
 # 如果存在 MyWorlds 子目录就使用它
-if [ -d "$ROOTFS_DIR/MyWorlds/etc" ] && [ -d "$ROOTFS_DIR/MyWorlds/usr" ]; then
-    ROOTFS_DIR="$ROOTFS_DIR/MyWorlds"
-fi
+[ -d "$ROOTFS_DIR/MyWorlds/etc" ] && [ -d "$ROOTFS_DIR/MyWorlds/usr" ] && ROOTFS_DIR="$ROOTFS_DIR/MyWorlds"
 
 export PATH="$PATH:$HOME/.local/usr/bin"
 ARCH=$(uname -m)
@@ -46,6 +51,9 @@ else
     exit 1
 fi
 
+# =====================
+# 安装函数
+# =====================
 install_ubuntu() {
     echo "Downloading Ubuntu 20.04 rootfs..."
     rm -rf "$ROOTFS_DIR"/*
@@ -103,16 +111,9 @@ if [ ! -e "$ROOTFS_DIR/.installed" ]; then
     read -p "Enter choice [1/2]: " choice
 
     case "$choice" in
-        1)
-            install_ubuntu
-            ;;
-        2)
-            install_alpine
-            ;;
-        *)
-            echo "Invalid choice, exiting."
-            exit 1
-            ;;
+        1) install_ubuntu ;;
+        2) install_alpine ;;
+        *) echo "Invalid choice, exiting."; exit 1 ;;
     esac
 
     install_proot
