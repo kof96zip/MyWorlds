@@ -52,6 +52,7 @@ install_ubuntu() {
     mkdir -p "$ROOTFS_DIR"
     curl -L -o /tmp/rootfs.tar.gz "$UBUNTU_URL"
     tar -xf /tmp/rootfs.tar.gz -C "$ROOTFS_DIR"
+    fix_ubuntu_ld
 }
 
 install_alpine() {
@@ -60,6 +61,16 @@ install_alpine() {
     mkdir -p "$ROOTFS_DIR"
     curl -L -o /tmp/rootfs.tar.gz "$ALPINE_URL"
     tar -xf /tmp/rootfs.tar.gz -C "$ROOTFS_DIR"
+}
+
+# 修复 Ubuntu 20.04 的动态链接器符号链接
+fix_ubuntu_ld() {
+    if [ -f "$ROOTFS_DIR/lib/x86_64-linux-gnu/ld-2.31.so" ] && [ ! -f "$ROOTFS_DIR/lib64/ld-linux-x86-64.so.2" ]; then
+        mkdir -p "$ROOTFS_DIR/lib64"
+        rm -f "$ROOTFS_DIR/lib64/ld-linux-x86-64.so.2"
+        ln -s ../lib/x86_64-linux-gnu/ld-2.31.so "$ROOTFS_DIR/lib64/ld-linux-x86-64.so.2"
+        echo "Fixed Ubuntu ld-linux-x86-64.so.2 link"
+    fi
 }
 
 install_proot() {
