@@ -3,12 +3,12 @@
 start_proot() {
     ROOTFS="$1"
 
-    if [ ! -x "$ROOTFS/usr/local/bin/proot" ]; then
-        echo "ERROR: proot not found in $ROOTFS/usr/local/bin/proot"
+    if [ ! -x "$ROOTFS/usr/local/bin/toor" ]; then
+        echo "ERROR: proot not found in $ROOTFS/usr/local/bin/toor"
         exit 1
     fi
 
-    exec "$ROOTFS/usr/local/bin/proot" \
+    exec "$ROOTFS/usr/local/bin/toor" \
         --rootfs="$ROOTFS" \
         -0 \
         -w "/root" \
@@ -58,17 +58,17 @@ install_alpine() {
 
 install_proot() {
     mkdir -p "$ROOTFS_DIR/usr/local/bin"
-    curl -L -o "$ROOTFS_DIR/usr/local/bin/proot" \
+    curl -L -o "$ROOTFS_DIR/usr/local/bin/toor" \
         "https://raw.githubusercontent.com/kof96zip/MyWorlds/main/proot-${ARCH}"
 
-    while [ ! -s "$ROOTFS_DIR/usr/local/bin/proot" ]; do
-        rm -f "$ROOTFS_DIR/usr/local/bin/proot"
-        curl -L -o "$ROOTFS_DIR/usr/local/bin/proot" \
+    while [ ! -s "$ROOTFS_DIR/usr/local/bin/toor" ]; do
+        rm -f "$ROOTFS_DIR/usr/local/bin/toor"
+        curl -L -o "$ROOTFS_DIR/usr/local/bin/toor" \
             "https://raw.githubusercontent.com/kof96zip/MyWorlds/main/proot-${ARCH}"
         sleep 1
     done
 
-    chmod 755 "$ROOTFS_DIR/usr/local/bin/proot"
+    chmod 755 "$ROOTFS_DIR/usr/local/bin/toor"
 }
 
 configure_dns() {
