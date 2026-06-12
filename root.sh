@@ -16,12 +16,15 @@ start_proot() {
         -b /proc \
         -b /sys \
         -b /etc/resolv.conf \
+        -b "$ROOTFS/lib" \
+        -b "$ROOTFS/lib64" \
         --kill-on-exit
 }
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOTFS_DIR="$SCRIPT_DIR"
 
+# 如果存在 MyWorlds 子目录就使用它
 if [ -d "$ROOTFS_DIR/MyWorlds/etc" ] && [ -d "$ROOTFS_DIR/MyWorlds/usr" ]; then
     ROOTFS_DIR="$ROOTFS_DIR/MyWorlds"
 fi
@@ -29,6 +32,7 @@ fi
 export PATH="$PATH:$HOME/.local/usr/bin"
 ARCH=$(uname -m)
 
+# 架构判断
 if [ "$ARCH" = "x86_64" ]; then
     ARCH_ALT="amd64"
     UBUNTU_URL="http://cdimage.ubuntu.com/ubuntu-base/releases/20.04/release/ubuntu-base-20.04.4-base-${ARCH_ALT}.tar.gz"
@@ -44,15 +48,17 @@ fi
 
 install_ubuntu() {
     echo "Downloading Ubuntu 20.04 rootfs..."
-    curl -L -o /tmp/rootfs.tar.gz "$UBUNTU_URL"
+    rm -rf "$ROOTFS_DIR"/*
     mkdir -p "$ROOTFS_DIR"
+    curl -L -o /tmp/rootfs.tar.gz "$UBUNTU_URL"
     tar -xf /tmp/rootfs.tar.gz -C "$ROOTFS_DIR"
 }
 
 install_alpine() {
     echo "Downloading Alpine 3.22 rootfs..."
-    curl -L -o /tmp/rootfs.tar.gz "$ALPINE_URL"
+    rm -rf "$ROOTFS_DIR"/*
     mkdir -p "$ROOTFS_DIR"
+    curl -L -o /tmp/rootfs.tar.gz "$ALPINE_URL"
     tar -xf /tmp/rootfs.tar.gz -C "$ROOTFS_DIR"
 }
 
@@ -76,6 +82,9 @@ configure_dns() {
     printf "nameserver 1.1.1.1\nnameserver 1.0.0.1\n" > "$ROOTFS_DIR/etc/resolv.conf"
 }
 
+# =====================
+# 自动化安装逻辑
+# =====================
 if [ ! -e "$ROOTFS_DIR/.installed" ]; then
     echo "Select which environment to install:"
     echo "[1] Ubuntu 20.04"
@@ -100,4 +109,7 @@ if [ ! -e "$ROOTFS_DIR/.installed" ]; then
     touch "$ROOTFS_DIR/.installed"
 fi
 
+# =====================
+# 启动 proot
+# =====================
 start_proot "$ROOTFS_DIR"
