@@ -56,7 +56,6 @@ fi
 # =====================
 install_ubuntu() {
     echo "Downloading Ubuntu 20.04 rootfs..."
-    rm -rf "$ROOTFS_DIR"/*
     mkdir -p "$ROOTFS_DIR"
     curl -L -o /tmp/rootfs.tar.gz "$UBUNTU_URL"
     tar -xf /tmp/rootfs.tar.gz -C "$ROOTFS_DIR"
@@ -65,7 +64,6 @@ install_ubuntu() {
 
 install_alpine() {
     echo "Downloading Alpine 3.22 rootfs..."
-    rm -rf "$ROOTFS_DIR"/*
     mkdir -p "$ROOTFS_DIR"
     curl -L -o /tmp/rootfs.tar.gz "$ALPINE_URL"
     tar -xf /tmp/rootfs.tar.gz -C "$ROOTFS_DIR"
